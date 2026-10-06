@@ -1,12 +1,15 @@
 package com.wfortini.paymentservice.infrastructure.config;
 
+import com.wfortini.paymentservice.application.port.in.PaymentEventUseCases;
 import com.wfortini.paymentservice.application.port.out.PaymentRepository;
+import com.wfortini.paymentservice.application.port.out.PaymentEventPublisher;
 import com.wfortini.paymentservice.application.port.out.PaymentEventStore;
 import com.wfortini.paymentservice.application.port.out.PaymentOrderStore;
 import com.wfortini.paymentservice.application.service.PaymentApplicationService;
 import com.wfortini.paymentservice.application.service.PaymentPersistenceService;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Primary;
 
 import java.time.Clock;
 
@@ -29,5 +32,14 @@ public class PaymentConfiguration {
             PaymentOrderStore paymentOrderStore
     ) {
         return new PaymentPersistenceService(paymentEventStore, paymentOrderStore);
+    }
+
+    @Bean
+    @Primary
+    PaymentEventUseCases transactionalPaymentEventUseCases(
+            PaymentPersistenceService delegate,
+            PaymentEventPublisher paymentEventPublisher
+    ) {
+        return new TransactionalPaymentEventUseCases(delegate, paymentEventPublisher);
     }
 }

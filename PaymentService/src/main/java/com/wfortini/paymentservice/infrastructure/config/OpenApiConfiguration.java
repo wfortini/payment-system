@@ -12,14 +12,13 @@ import org.springframework.context.annotation.Configuration;
         info = @Info(
                 title = "PaymentService API",
                 version = "v1",
-                description = "API para pagamentos, eventos de pagamento e ordens de pagamento.",
+                description = "API para pagamentos e criação transacional de eventos com suas ordens.",
                 contact = @Contact(name = "WFortini"),
                 license = @License(name = "Apache 2.0", url = "https://www.apache.org/licenses/LICENSE-2.0")
         ),
         tags = {
                 @Tag(name = "Payments", description = "Operações básicas de pagamento"),
-                @Tag(name = "Payment Events", description = "Eventos persistidos de checkout"),
-                @Tag(name = "Payment Orders", description = "Ordens persistidas de pagamento")
+                @Tag(name = "Payment Events", description = "Eventos e respectivas ordens persistidos em conjunto")
         }
 )
 public class OpenApiConfiguration {

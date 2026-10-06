@@ -84,8 +84,8 @@ Serviços expostos:
 
 Recursos persistentes:
 
-- `POST/GET /api/v1/payment-events`
-- `POST/GET /api/v1/payment-orders`
+- `POST /api/v1/payment-events` — cria o evento e suas ordens na mesma transação
+- `GET /api/v1/payment-events/{checkoutId}`
 
 ## Swagger UI e OpenAPI
 
@@ -95,3 +95,26 @@ Com o serviço em execução, a documentação interativa fica disponível em:
 - Especificação OpenAPI (JSON): `http://localhost:8080/v3/api-docs`
 
 Pela interface Swagger é possível consultar os contratos e executar requisições para pagamentos, eventos de pagamento e ordens de pagamento.
+
+## Eventos Kafka
+
+Ao criar um evento com suas ordens por `POST /api/v1/payment-events`, o PaymentService persiste todo o agregado na mesma transação e publica uma mensagem no tópico `payment-events`. O `checkout_id` é usado como chave Kafka.
+
+Payload publicado:
+
+```json
+{
+  "checkout_id": "checkout-123",
+  "buyer_info": "buyer-123",
+  "seller_info": "seller-456",
+  "credit_card_info": "**** 1234",
+  "is_payment_done": false
+}
+```
+
+As configurações do producer estão no `application.properties` e podem ser sobrescritas por variáveis de ambiente:
+
+- `SPRING_KAFKA_BOOTSTRAP_SERVERS` — padrão `localhost:49092`
+- `PAYMENT_EVENT_TOPIC` — padrão `payment-events`
+
+O producer utiliza confirmação `acks=all`, idempotência e serialização JSON.

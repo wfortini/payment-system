@@ -7,7 +7,7 @@ import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 import io.swagger.v3.oas.annotations.media.Schema;
 
-@Schema(description = "Dados necessários para criar uma ordem de pagamento")
+@Schema(description = "Ordem de pagamento persistida junto com o evento")
 public record CreatePaymentOrderRequest(
         @Schema(description = "Identificador único da ordem", example = "order-123")
         @NotBlank @Size(max = 255) String paymentOrderId,
@@ -17,7 +17,7 @@ public record CreatePaymentOrderRequest(
         @NotBlank @Size(max = 255) String amount,
         @Schema(description = "Código ISO 4217 da moeda", example = "BRL")
         @NotBlank @Pattern(regexp = "[A-Za-z]{3}") String currency,
-        @Schema(description = "Checkout previamente cadastrado", example = "checkout-123")
+        @Schema(description = "Checkout do evento pai; deve ser igual ao checkoutId do evento", example = "checkout-123")
         @NotBlank @Size(max = 255) String checkoutId,
         @Schema(description = "Estado atual da ordem", example = "NOT_STARTED")
         @NotNull PaymentOrderStatus paymentOrderStatus,
