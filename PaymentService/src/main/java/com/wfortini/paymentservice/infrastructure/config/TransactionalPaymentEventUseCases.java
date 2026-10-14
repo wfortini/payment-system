@@ -11,6 +11,7 @@ import org.springframework.transaction.support.TransactionSynchronizationManager
 
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 public class TransactionalPaymentEventUseCases implements PaymentEventUseCases {
 
@@ -29,10 +30,11 @@ public class TransactionalPaymentEventUseCases implements PaymentEventUseCases {
     @Transactional
     public PaymentEvent create(PaymentEvent paymentEvent, List<PaymentOrder> paymentOrders) {
         var savedPaymentEvent = delegate.create(paymentEvent, paymentOrders);
+        var savedPaymentOrders = List.copyOf(paymentOrders);
         TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronization() {
             @Override
             public void afterCommit() {
-                paymentEventPublisher.publish(savedPaymentEvent);
+                paymentEventPublisher.publish(savedPaymentEvent, savedPaymentOrders);
             }
         });
         return savedPaymentEvent;
@@ -40,7 +42,8 @@ public class TransactionalPaymentEventUseCases implements PaymentEventUseCases {
 
     @Override
     @Transactional(readOnly = true)
-    public Optional<PaymentEvent> findByCheckoutId(String checkoutId) {
+    public Optional<PaymentEvent> findByCheckoutId(UUID checkoutId) {
+
         return delegate.findByCheckoutId(checkoutId);
     }
 }

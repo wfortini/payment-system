@@ -24,12 +24,16 @@ services:
       SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/payment_service
       SPRING_DATASOURCE_USERNAME: payment
       SPRING_DATASOURCE_PASSWORD: payment
+      SPRING_KAFKA_BOOTSTRAP_SERVERS: kafka-1:19092,kafka-2:19092,kafka-3:19092
       SERVER_PORT: 8080
     ports:
       - "8080:8080"
     depends_on:
       postgres:
         condition: service_healthy
+    networks:
+      - default
+      - payment-kafka-network
     restart: unless-stopped
 
   ledger-service:
@@ -41,5 +45,43 @@ services:
       - "8081:8080"
     restart: unless-stopped
 
+  mongo:
+    image: mongo:8.0.4
+    container_name: payment-executor-mongo
+    environment:
+      MONGO_INITDB_DATABASE: executordb
+    ports:
+      - "27017:27017"
+    volumes:
+      - payment-executor-mongo-data:/data/db
+      - ./PaymentExecutor/docker/mongo-init.js:/docker-entrypoint-initdb.d/mongo-init.js:ro
+    healthcheck:
+      test: ["CMD", "mongosh", "--quiet", "--eval", "db.adminCommand('ping').ok"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    restart: unless-stopped
+
+  payment-executor:
+    image: payment-executor:0.0.1-SNAPSHOT
+    container_name: payment-executor
+    environment:
+      SPRING_MONGODB_URI: mongodb://mongo:27017/executordb
+      SPRING_KAFKA_BOOTSTRAP_SERVERS: kafka-1:19092,kafka-2:19092,kafka-3:19092
+      PAYMENT_EVENT_TOPIC: payment-events
+      PAYMENT_EXECUTOR_CONSUMER_GROUP: payment-executor
+    depends_on:
+      mongo:
+        condition: service_healthy
+    networks:
+      - default
+      - payment-kafka-network
+    restart: unless-stopped
+
 volumes:
   payment-postgres-data:
+  payment-executor-mongo-data:
+
+networks:
+  payment-kafka-network:
+    external: true

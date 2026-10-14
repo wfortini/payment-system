@@ -6,6 +6,7 @@ import org.springframework.stereotype.Repository;
 
 import java.util.Currency;
 import java.util.Optional;
+import java.util.UUID;
 
 @Repository
 public class JpaPaymentOrderStore implements PaymentOrderStore {
@@ -26,7 +27,7 @@ public class JpaPaymentOrderStore implements PaymentOrderStore {
     }
 
     @Override
-    public Optional<PaymentOrder> findByPaymentOrderId(String paymentOrderId) {
+    public Optional<PaymentOrder> findByPaymentOrderId(UUID paymentOrderId) {
         return repository.findById(paymentOrderId).map(this::toDomain);
     }
 

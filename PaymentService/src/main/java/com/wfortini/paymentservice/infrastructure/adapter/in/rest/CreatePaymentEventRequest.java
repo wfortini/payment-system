@@ -11,8 +11,6 @@ import java.util.List;
 
 @Schema(description = "Dados necessários para registrar um evento de pagamento")
 public record CreatePaymentEventRequest(
-        @Schema(description = "Identificador único do checkout", example = "checkout-123")
-        @NotBlank @Size(max = 255) String checkoutId,
         @Schema(description = "Informações do comprador", example = "buyer-456")
         @NotBlank @Size(max = 2000) String buyerInfo,
         @Schema(description = "Informações do vendedor", example = "seller-789")

@@ -11,6 +11,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.UUID;
 
 public final class PaymentPersistenceService implements PaymentEventUseCases, PaymentOrderUseCases {
 
@@ -32,7 +33,7 @@ public final class PaymentPersistenceService implements PaymentEventUseCases, Pa
             throw new IllegalStateException("Payment event already exists: " + paymentEvent.checkoutId());
         }
 
-        var orderIds = new HashSet<String>();
+        var orderIds = new HashSet<UUID>();
         for (var paymentOrder : paymentOrders) {
             if (!paymentEvent.checkoutId().equals(paymentOrder.checkoutId())) {
                 throw new IllegalArgumentException(
@@ -58,7 +59,7 @@ public final class PaymentPersistenceService implements PaymentEventUseCases, Pa
     }
 
     @Override
-    public Optional<PaymentEvent> findByCheckoutId(String checkoutId) {
+    public Optional<PaymentEvent> findByCheckoutId(UUID checkoutId) {
         return paymentEventStore.findByCheckoutId(checkoutId);
     }
 
@@ -74,7 +75,7 @@ public final class PaymentPersistenceService implements PaymentEventUseCases, Pa
     }
 
     @Override
-    public Optional<PaymentOrder> findByPaymentOrderId(String paymentOrderId) {
+    public Optional<PaymentOrder> findByPaymentOrderId(UUID paymentOrderId) {
         return paymentOrderStore.findByPaymentOrderId(paymentOrderId);
     }
 }

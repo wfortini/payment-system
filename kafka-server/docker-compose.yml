@@ -38,6 +38,8 @@ services:
       KAFKA_SHARE_COORDINATOR_STATE_TOPIC_REPLICATION_FACTOR: 1
       KAFKA_SHARE_COORDINATOR_STATE_TOPIC_MIN_ISR: 1
       KAFKA_LOG_DIRS: '/tmp/kraft-combined-logs'
+    networks:
+      - payment-kafka-network
 
   kafka-2:
     image: apache/kafka:latest
@@ -62,6 +64,8 @@ services:
       KAFKA_SHARE_COORDINATOR_STATE_TOPIC_REPLICATION_FACTOR: 1
       KAFKA_SHARE_COORDINATOR_STATE_TOPIC_MIN_ISR: 1
       KAFKA_LOG_DIRS: '/tmp/kraft-combined-logs'
+    networks:
+      - payment-kafka-network
 
   kafka-3:
     image: apache/kafka:latest
@@ -86,3 +90,9 @@ services:
       KAFKA_SHARE_COORDINATOR_STATE_TOPIC_REPLICATION_FACTOR: 1
       KAFKA_SHARE_COORDINATOR_STATE_TOPIC_MIN_ISR: 1
       KAFKA_LOG_DIRS: '/tmp/kraft-combined-logs'
+    networks:
+      - payment-kafka-network
+
+networks:
+  payment-kafka-network:
+    external: true

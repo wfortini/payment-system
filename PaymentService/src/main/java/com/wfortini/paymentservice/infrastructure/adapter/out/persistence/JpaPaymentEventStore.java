@@ -5,6 +5,7 @@ import com.wfortini.paymentservice.domain.model.PaymentEvent;
 import org.springframework.stereotype.Repository;
 
 import java.util.Optional;
+import java.util.UUID;
 
 @Repository
 public class JpaPaymentEventStore implements PaymentEventStore {
@@ -24,7 +25,7 @@ public class JpaPaymentEventStore implements PaymentEventStore {
     }
 
     @Override
-    public Optional<PaymentEvent> findByCheckoutId(String checkoutId) {
+    public Optional<PaymentEvent> findByCheckoutId(UUID checkoutId) {
         return repository.findById(checkoutId).map(this::toDomain);
     }
 

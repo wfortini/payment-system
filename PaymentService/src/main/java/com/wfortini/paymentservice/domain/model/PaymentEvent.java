@@ -1,16 +1,17 @@
 package com.wfortini.paymentservice.domain.model;
 
 import java.util.Objects;
+import java.util.UUID;
 
 public record PaymentEvent(
-        String checkoutId,
+        UUID checkoutId,
         String buyerInfo,
         String sellerInfo,
         String creditCardInfo,
         boolean paymentDone
 ) {
     public PaymentEvent {
-        requireText(checkoutId, "checkoutId");
+        Objects.requireNonNull(checkoutId, "checkoutId must not be null");
         requireText(buyerInfo, "buyerInfo");
         requireText(sellerInfo, "sellerInfo");
         requireText(creditCardInfo, "creditCardInfo");

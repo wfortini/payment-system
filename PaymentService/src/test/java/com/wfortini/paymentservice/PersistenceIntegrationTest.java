@@ -12,6 +12,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 
 import java.util.Currency;
+import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -33,14 +34,14 @@ class PersistenceIntegrationTest {
     @Test
     void shouldPersistPaymentEventAndOrder() {
         var eventToCreate = new PaymentEvent(
-                "checkout-integration-test",
+                UUID.fromString("f76b6fe5-3588-487b-a78e-c4996f85349e"),
                 "buyer",
                 "seller",
                 "masked-card",
                 false
         );
         var order = new PaymentOrder(
-                "order-integration-test",
+                UUID.fromString("181e536d-a140-46f8-a469-d8d9459d1b90"),
                 "buyer-account",
                 "125.90",
                 Currency.getInstance("BRL"),
@@ -54,20 +55,20 @@ class PersistenceIntegrationTest {
 
         assertThat(paymentEvents.findByCheckoutId(event.checkoutId())).contains(event);
         assertThat(paymentOrders.findByPaymentOrderId(order.paymentOrderId())).contains(order);
-        verify(paymentEventPublisher).publish(event);
+        verify(paymentEventPublisher).publish(event, java.util.List.of(order));
     }
 
     @Test
     void shouldRollbackEventWhenAnOrderCannotBePersisted() {
         var event = new PaymentEvent(
-                "checkout-rollback-test",
+                UUID.fromString("56b5f437-7bc6-484f-bab7-070ad00cd2cd"),
                 "buyer",
                 "seller",
                 "masked-card",
                 false
         );
         var invalidOrder = new PaymentOrder(
-                "order-rollback-test",
+                UUID.fromString("434d94ba-5e97-4c04-bd62-a23095b3197a"),
                 "buyer-account",
                 "1".repeat(256),
                 Currency.getInstance("BRL"),

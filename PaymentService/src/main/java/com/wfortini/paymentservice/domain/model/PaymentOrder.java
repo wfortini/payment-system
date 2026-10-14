@@ -2,23 +2,24 @@ package com.wfortini.paymentservice.domain.model;
 
 import java.util.Currency;
 import java.util.Objects;
+import java.util.UUID;
 
 public record PaymentOrder(
-        String paymentOrderId,
+        UUID paymentOrderId,
         String buyerAccount,
         String amount,
         Currency currency,
-        String checkoutId,
+        UUID checkoutId,
         PaymentOrderStatus status,
         boolean ledgerUpdated,
         boolean walletUpdated
 ) {
     public PaymentOrder {
-        requireText(paymentOrderId, "paymentOrderId");
+        Objects.requireNonNull(paymentOrderId, "paymentOrderId must not be null");
         requireText(buyerAccount, "buyerAccount");
         requireText(amount, "amount");
         Objects.requireNonNull(currency, "currency must not be null");
-        requireText(checkoutId, "checkoutId");
+        Objects.requireNonNull(checkoutId, "checkoutId must not be null");
         Objects.requireNonNull(status, "status must not be null");
     }
 

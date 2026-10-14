@@ -4,14 +4,19 @@ import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
+
+import java.util.UUID;
 
 @Entity
 @Table(name = "payment_event")
 class PaymentEventJpaEntity {
 
     @Id
+    @JdbcTypeCode(SqlTypes.VARCHAR)
     @Column(name = "checkout_id", nullable = false)
-    String checkoutId;
+    UUID checkoutId;
 
     @Column(name = "buyer_info", nullable = false, length = 2000)
     String buyerInfo;
@@ -29,7 +34,7 @@ class PaymentEventJpaEntity {
     }
 
     PaymentEventJpaEntity(
-            String checkoutId,
+            UUID checkoutId,
             String buyerInfo,
             String sellerInfo,
             String creditCardInfo,

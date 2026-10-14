@@ -87,6 +87,27 @@ Recursos persistentes:
 - `POST /api/v1/payment-events` — cria o evento e suas ordens na mesma transação
 - `GET /api/v1/payment-events/{checkoutId}`
 
+Os UUIDs do evento e das ordens são gerados pelo serviço. Exemplo de criação:
+
+```json
+{
+  "buyerInfo": "buyer-456",
+  "sellerInfo": "seller-789",
+  "creditCardInfo": "****1111",
+  "paymentDone": false,
+  "paymentOrders": [
+    {
+      "buyerAccount": "account-456",
+      "amount": "125.90",
+      "currency": "BRL",
+      "paymentOrderStatus": "NOT_STARTED",
+      "ledgerUpdated": false,
+      "walletUpdated": false
+    }
+  ]
+}
+```
+
 ## Swagger UI e OpenAPI
 
 Com o serviço em execução, a documentação interativa fica disponível em:
@@ -104,11 +125,23 @@ Payload publicado:
 
 ```json
 {
-  "checkout_id": "checkout-123",
+  "checkout_id": "b3b58ca2-326d-4f0a-bb0f-0af6bcfb7301",
   "buyer_info": "buyer-123",
   "seller_info": "seller-456",
   "credit_card_info": "**** 1234",
-  "is_payment_done": false
+  "is_payment_done": false,
+  "payment_orders": [
+    {
+      "payment_order_id": "181e536d-a140-46f8-a469-d8d9459d1b90",
+      "buyer_account": "account-456",
+      "amount": "125.90",
+      "currency": "BRL",
+      "checkout_id": "b3b58ca2-326d-4f0a-bb0f-0af6bcfb7301",
+      "payment_order_status": "NOT_STARTED",
+      "ledger_updated": false,
+      "wallet_updated": false
+    }
+  ]
 }
 ```
 

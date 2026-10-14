@@ -7,14 +7,19 @@ import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
+
+import java.util.UUID;
 
 @Entity
 @Table(name = "payment_order")
 class PaymentOrderJpaEntity {
 
     @Id
+    @JdbcTypeCode(SqlTypes.VARCHAR)
     @Column(name = "payment_order_id", nullable = false)
-    String paymentOrderId;
+    UUID paymentOrderId;
 
     @Column(name = "buyer_account", nullable = false)
     String buyerAccount;
@@ -25,8 +30,9 @@ class PaymentOrderJpaEntity {
     @Column(name = "currency", nullable = false, length = 3)
     String currency;
 
+    @JdbcTypeCode(SqlTypes.VARCHAR)
     @Column(name = "checkout_id", nullable = false)
-    String checkoutId;
+    UUID checkoutId;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "payment_order_status", nullable = false, length = 32)
@@ -42,11 +48,11 @@ class PaymentOrderJpaEntity {
     }
 
     PaymentOrderJpaEntity(
-            String paymentOrderId,
+            UUID paymentOrderId,
             String buyerAccount,
             String amount,
             String currency,
-            String checkoutId,
+            UUID checkoutId,
             PaymentOrderStatus status,
             boolean ledgerUpdated,
             boolean walletUpdated

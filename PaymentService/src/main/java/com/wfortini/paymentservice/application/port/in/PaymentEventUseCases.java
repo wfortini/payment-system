@@ -5,10 +5,11 @@ import com.wfortini.paymentservice.domain.model.PaymentOrder;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 public interface PaymentEventUseCases {
 
     PaymentEvent create(PaymentEvent paymentEvent, List<PaymentOrder> paymentOrders);
 
-    Optional<PaymentEvent> findByCheckoutId(String checkoutId);
+    Optional<PaymentEvent> findByCheckoutId(UUID checkoutId);
 }

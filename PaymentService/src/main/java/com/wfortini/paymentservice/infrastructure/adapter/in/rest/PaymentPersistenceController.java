@@ -22,6 +22,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.net.URI;
 import java.util.Currency;
+import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/v1")
@@ -47,12 +48,13 @@ public class PaymentPersistenceController {
                     content = @Content(schema = @Schema(implementation = ProblemDetail.class)))
     })
     ResponseEntity<PaymentEvent> createEvent(@Valid @RequestBody CreatePaymentEventRequest request) {
+        var checkoutId = UUID.randomUUID();
         var event = new PaymentEvent(
-                request.checkoutId(), request.buyerInfo(), request.sellerInfo(),
+                checkoutId, request.buyerInfo(), request.sellerInfo(),
                 request.creditCardInfo(), request.paymentDone()
         );
         var orders = request.paymentOrders().stream()
-                .map(this::toPaymentOrder)
+                .map(requestOrder -> toPaymentOrder(requestOrder, checkoutId))
                 .toList();
         var savedEvent = paymentEvents.create(event, orders);
         return ResponseEntity.created(URI.create("/api/v1/payment-events/" + savedEvent.checkoutId())).body(savedEvent);
@@ -67,17 +69,17 @@ public class PaymentPersistenceController {
                     content = @Content(schema = @Schema(implementation = ProblemDetail.class)))
     })
     PaymentEvent findEvent(
-            @Parameter(description = "Identificador do checkout", example = "checkout-123")
-            @PathVariable String checkoutId
+            @Parameter(description = "Identificador UUID do checkout", example = "b3b58ca2-326d-4f0a-bb0f-0af6bcfb7301")
+            @PathVariable UUID checkoutId
     ) {
         return paymentEvents.findByCheckoutId(checkoutId)
                 .orElseThrow(() -> new ResourceNotFoundException("Payment event not found: " + checkoutId));
     }
 
-    private PaymentOrder toPaymentOrder(CreatePaymentOrderRequest request) {
+    private PaymentOrder toPaymentOrder(CreatePaymentOrderRequest request, UUID checkoutId) {
         return new PaymentOrder(
-                request.paymentOrderId(), request.buyerAccount(), request.amount(),
-                Currency.getInstance(request.currency().toUpperCase()), request.checkoutId(),
+                UUID.randomUUID(), request.buyerAccount(), request.amount(),
+                Currency.getInstance(request.currency().toUpperCase()), checkoutId,
                 request.paymentOrderStatus(), request.ledgerUpdated(), request.walletUpdated()
         );
     }

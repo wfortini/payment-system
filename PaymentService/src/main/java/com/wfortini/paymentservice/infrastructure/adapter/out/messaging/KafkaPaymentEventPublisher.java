@@ -2,11 +2,14 @@ package com.wfortini.paymentservice.infrastructure.adapter.out.messaging;
 
 import com.wfortini.paymentservice.application.port.out.PaymentEventPublisher;
 import com.wfortini.paymentservice.domain.model.PaymentEvent;
+import com.wfortini.paymentservice.domain.model.PaymentOrder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Component;
+
+import java.util.List;
 
 @Component
 public class KafkaPaymentEventPublisher implements PaymentEventPublisher {
@@ -25,10 +28,10 @@ public class KafkaPaymentEventPublisher implements PaymentEventPublisher {
     }
 
     @Override
-    public void publish(PaymentEvent paymentEvent) {
-        var message = PaymentEventMessage.from(paymentEvent);
+    public void publish(PaymentEvent paymentEvent, List<PaymentOrder> paymentOrders) {
+        var message = PaymentEventMessage.from(paymentEvent, paymentOrders);
 
-        kafkaTemplate.send(topic, paymentEvent.checkoutId(), message)
+        kafkaTemplate.send(topic, paymentEvent.checkoutId().toString(), message)
                 .whenComplete((result, error) -> {
                     if (error != null) {
                         LOGGER.error(
