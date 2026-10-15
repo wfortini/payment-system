@@ -16,6 +16,7 @@ public final class PaymentExecutionService implements ProcessPaymentEventUseCase
 
     @Override
     public PaymentExecution process(PaymentExecution paymentExecution) {
+
         return repository.save(paymentExecution);
     }
 }
