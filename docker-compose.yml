@@ -45,6 +45,21 @@ services:
       - "8081:8080"
     restart: unless-stopped
 
+  psp-emulator:
+    image: psp-emulator:0.0.1-SNAPSHOT
+    container_name: psp-emulator
+    environment:
+      SERVER_PORT: 8080
+      PSP_DATABASE_PATH: /data/psp-emulator
+      PSP_NOTIFICATION_BASE_URL: ${PSP_NOTIFICATION_BASE_URL:-http://host.docker.internal:8089}
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    ports:
+      - "8082:8080"
+    volumes:
+      - psp-emulator-data:/data
+    restart: unless-stopped
+
   mongo:
     image: mongo:8.0.4
     container_name: payment-executor-mongo
@@ -126,6 +141,7 @@ services:
 volumes:
   payment-postgres-data:
   payment-executor-mongo-data:
+  psp-emulator-data:
 
 networks:
   payment-kafka-network:

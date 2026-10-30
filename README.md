@@ -9,6 +9,7 @@ Sistema de pagamentos formado por serviços Spring Boot 4, Java 21, Kafka, Postg
 | `PaymentService` | Receber e persistir eventos e ordens de pagamento e publicar no Kafka | PostgreSQL e Kafka |
 | `PaymentExecutor` | Consumir `payment-events` e persistir a execução | Kafka e MongoDB |
 | `LedgerService` | Operações de ledger | — |
+| `PSPEmulator` | Emular o processamento de pagamentos e notificar o resultado após o commit | H2 e serviço HTTP de notificações |
 | `kafka-server` | Cluster Kafka local com três brokers KRaft | Docker |
 
 ## Observabilidade
@@ -139,6 +140,9 @@ mvn clean verify compile jib:dockerBuild
 
 cd ../LedgerService
 mvn clean verify compile jib:dockerBuild
+
+cd ../PSPEmulator
+mvn clean verify compile jib:dockerBuild
 ```
 
 Imagens geradas:
@@ -146,6 +150,7 @@ Imagens geradas:
 - `payment-service:0.0.1-SNAPSHOT`
 - `payment-executor:0.0.1-SNAPSHOT`
 - `ledger-service:0.0.1-SNAPSHOT`
+- `psp-emulator:0.0.1-SNAPSHOT`
 
 ## Rede Docker compartilhada do Kafka
 
@@ -224,6 +229,7 @@ docker compose up -d
 | PaymentService | `http://localhost:8080` |
 | PaymentService Swagger | `http://localhost:8080/swagger-ui.html` |
 | LedgerService | `http://localhost:8081` |
+| PSPEmulator | `http://localhost:8082/api/v1/payments` |
 | PostgreSQL | `localhost:5432` |
 | MongoDB | `localhost:27017` |
 | Kafka broker 1 | `localhost:29092` |
@@ -269,6 +275,7 @@ Após gerar uma nova imagem pelo Maven, recrie somente o serviço alterado:
 docker compose up -d --force-recreate payment-service
 docker compose up -d --force-recreate payment-executor
 docker compose up -d --force-recreate ledger-service
+docker compose up -d --force-recreate psp-emulator
 ```
 
 Não é necessário recriar a rede `payment-kafka-network` a cada execução.
