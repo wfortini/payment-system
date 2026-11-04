@@ -16,7 +16,9 @@ public record PaymentOrderDocument(
         UUID checkoutId,
         PaymentOrderStatus paymentOrderStatus,
         boolean ledgerUpdated,
-        boolean walletUpdated
+        boolean walletUpdated,
+        UUID externalId,
+        String errorMessage
 ) {
 
     static PaymentOrderDocument from(PaymentOrderExecution order) {
@@ -28,7 +30,9 @@ public record PaymentOrderDocument(
                 order.checkoutId(),
                 order.status(),
                 order.ledgerUpdated(),
-                order.walletUpdated()
+                order.walletUpdated(),
+                order.externalId(),
+                order.errorMessage()
         );
     }
 
@@ -41,7 +45,9 @@ public record PaymentOrderDocument(
                 checkoutId,
                 paymentOrderStatus,
                 ledgerUpdated,
-                walletUpdated
+                walletUpdated,
+                externalId,
+                errorMessage
         );
     }
 }

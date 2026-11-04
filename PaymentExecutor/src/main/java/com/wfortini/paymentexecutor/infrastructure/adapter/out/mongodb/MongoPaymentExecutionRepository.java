@@ -4,6 +4,9 @@ import com.wfortini.paymentexecutor.application.port.out.PaymentExecutionReposit
 import com.wfortini.paymentexecutor.domain.model.PaymentExecution;
 import org.springframework.stereotype.Repository;
 
+import java.util.Optional;
+import java.util.UUID;
+
 @Repository
 public class MongoPaymentExecutionRepository implements PaymentExecutionRepository {
 
@@ -16,5 +19,11 @@ public class MongoPaymentExecutionRepository implements PaymentExecutionReposito
     @Override
     public PaymentExecution save(PaymentExecution paymentExecution) {
         return repository.save(PaymentExecutionDocument.from(paymentExecution)).toDomain();
+    }
+
+    @Override
+    public Optional<PaymentExecution> findByExternalId(UUID externalId) {
+        return repository.findByPaymentOrdersExternalId(externalId)
+                .map(PaymentExecutionDocument::toDomain);
     }
 }

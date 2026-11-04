@@ -1,7 +1,8 @@
 package com.wfortini.paymentexecutor.infrastructure.config;
 
-import com.wfortini.paymentexecutor.application.port.in.ProcessPaymentEventUseCase;
+import com.wfortini.paymentexecutor.application.port.out.ChangedPaymentOrderEventPublisher;
 import com.wfortini.paymentexecutor.application.port.out.PaymentExecutionRepository;
+import com.wfortini.paymentexecutor.application.port.out.PspPaymentClient;
 import com.wfortini.paymentexecutor.application.service.PaymentExecutionService;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -17,7 +18,10 @@ public class PaymentExecutorConfiguration {
     }
 
     @Bean
-    ProcessPaymentEventUseCase processPaymentEventUseCase(PaymentExecutionRepository repository) {
-        return new PaymentExecutionService(repository);
+    PaymentExecutionService paymentExecutionService(PaymentExecutionRepository repository,
+                                                     PspPaymentClient pspPaymentClient,
+                                                     ChangedPaymentOrderEventPublisher eventPublisher) {
+        return new PaymentExecutionService(repository, pspPaymentClient, eventPublisher);
     }
+
 }

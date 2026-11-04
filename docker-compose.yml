@@ -51,9 +51,7 @@ services:
     environment:
       SERVER_PORT: 8080
       PSP_DATABASE_PATH: /data/psp-emulator
-      PSP_NOTIFICATION_BASE_URL: ${PSP_NOTIFICATION_BASE_URL:-http://host.docker.internal:8089}
-    extra_hosts:
-      - "host.docker.internal:host-gateway"
+      PSP_NOTIFICATION_BASE_URL: ${PSP_NOTIFICATION_BASE_URL:-http://payment-executor:8080}
     ports:
       - "8082:8080"
     volumes:
@@ -85,9 +83,16 @@ services:
       SPRING_KAFKA_BOOTSTRAP_SERVERS: kafka-1:19092,kafka-2:19092,kafka-3:19092
       PAYMENT_EVENT_TOPIC: payment-events
       PAYMENT_EXECUTOR_CONSUMER_GROUP: payment-executor
+      PAYMENT_ORDER_EVENT_TOPIC: payment-orders-event
+      PSP_BASE_URL: http://psp-emulator:8080
+      SERVER_PORT: 8080
+    ports:
+      - "8083:8080"
     depends_on:
       mongo:
         condition: service_healthy
+      psp-emulator:
+        condition: service_started
     networks:
       - default
       - payment-kafka-network

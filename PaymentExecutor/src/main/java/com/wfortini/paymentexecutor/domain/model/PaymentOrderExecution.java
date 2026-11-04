@@ -13,7 +13,9 @@ public record PaymentOrderExecution(
         UUID checkoutId,
         PaymentOrderStatus status,
         boolean ledgerUpdated,
-        boolean walletUpdated
+        boolean walletUpdated,
+        UUID externalId,
+        String errorMessage
 ) {
     public PaymentOrderExecution {
         Objects.requireNonNull(paymentOrderId, "paymentOrderId must not be null");
@@ -25,6 +27,30 @@ public record PaymentOrderExecution(
         Objects.requireNonNull(currency, "currency must not be null");
         Objects.requireNonNull(checkoutId, "checkoutId must not be null");
         Objects.requireNonNull(status, "status must not be null");
+    }
+
+    public PaymentOrderExecution acceptedByPsp(UUID newExternalId) {
+        return new PaymentOrderExecution(
+                paymentOrderId, buyerAccount, amount, currency, checkoutId,
+                PaymentOrderStatus.EXECUTING, ledgerUpdated, walletUpdated,
+                Objects.requireNonNull(newExternalId), null
+        );
+    }
+
+    public PaymentOrderExecution rejectedByPsp(String message) {
+        return new PaymentOrderExecution(
+                paymentOrderId, buyerAccount, amount, currency, checkoutId,
+                status, ledgerUpdated, walletUpdated, null,
+                Objects.requireNonNull(message)
+        );
+    }
+
+    public PaymentOrderExecution withStatus(PaymentOrderStatus newStatus) {
+        return new PaymentOrderExecution(
+                paymentOrderId, buyerAccount, amount, currency, checkoutId,
+                Objects.requireNonNull(newStatus), ledgerUpdated, walletUpdated,
+                externalId, errorMessage
+        );
     }
 
     private static void requireText(String value, String field) {

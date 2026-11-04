@@ -35,4 +35,15 @@ public record PaymentExecution(
             throw new IllegalArgumentException(field + " must not be blank");
         }
     }
+
+    public PaymentExecution replaceOrder(PaymentOrderExecution updatedOrder) {
+        var updatedOrders = paymentOrders.stream()
+                .map(order -> order.paymentOrderId().equals(updatedOrder.paymentOrderId())
+                        ? updatedOrder : order)
+                .toList();
+        return new PaymentExecution(
+                checkoutId, buyerInfo, sellerInfo, creditCardInfo,
+                paymentDone, updatedOrders, receivedAt
+        );
+    }
 }

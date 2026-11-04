@@ -28,7 +28,9 @@ public record PaymentOrderMessage(
                 checkoutId,
                 paymentOrderStatus,
                 ledgerUpdated,
-                walletUpdated
+                walletUpdated,
+                null,
+                null
         );
     }
 }

@@ -43,6 +43,8 @@ class PaymentEventMessageTest {
             assertThat(order.amount()).isEqualByComparingTo("125.90");
             assertThat(order.currency().getCurrencyCode()).isEqualTo("BRL");
             assertThat(order.status()).isEqualTo(PaymentOrderStatus.NOT_STARTED);
+            assertThat(order.externalId()).isNull();
+            assertThat(order.errorMessage()).isNull();
         });
     }
 }
