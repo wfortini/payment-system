@@ -1,6 +1,28 @@
 spring:
   application:
     name: LedgerService
+  datasource:
+    url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://localhost:5433/ledger_service}
+    username: ${SPRING_DATASOURCE_USERNAME:ledger}
+    password: ${SPRING_DATASOURCE_PASSWORD:ledger}
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    open-in-view: false
+  flyway:
+    enabled: true
+  kafka:
+    bootstrap-servers: ${SPRING_KAFKA_BOOTSTRAP_SERVERS:localhost:49092}
+    consumer:
+      group-id: ${LEDGER_CONSUMER_GROUP:ledger-service}
+      auto-offset-reset: earliest
+      enable-auto-commit: false
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.springframework.kafka.support.serializer.JacksonJsonDeserializer
+      properties:
+        spring.json.value.default.type: com.wfortini.ledgerservice.infrastructure.adapter.in.kafka.PaymentProcessedEvent
+        spring.json.trusted.packages: com.wfortini.ledgerservice.infrastructure.adapter.in.kafka
+        spring.json.use.type.headers: false
   mvc:
     problemdetails:
       enabled: true
@@ -15,3 +37,7 @@ springdoc:
     path: /swagger-ui.html
     operations-sorter: method
     tags-sorter: alpha
+
+ledger:
+  kafka:
+    payment-processed-topic: ${PAYMENT_PROCESSED_TOPIC:payment_processed}

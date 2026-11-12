@@ -1,6 +1,7 @@
 package com.wfortini.ledgerservice.infrastructure.config;
 
 import com.wfortini.ledgerservice.application.port.out.LedgerEntryRepository;
+import com.wfortini.ledgerservice.application.port.out.LedgerTransactionRepository;
 import com.wfortini.ledgerservice.application.service.LedgerApplicationService;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -16,7 +17,11 @@ public class LedgerConfiguration {
     }
 
     @Bean
-    LedgerApplicationService ledgerApplicationService(LedgerEntryRepository repository, Clock clock) {
-        return new LedgerApplicationService(repository, clock);
+    LedgerApplicationService ledgerApplicationService(
+            LedgerEntryRepository entryRepository,
+            LedgerTransactionRepository transactionRepository,
+            Clock clock
+    ) {
+        return new LedgerApplicationService(entryRepository, transactionRepository, clock);
     }
 }

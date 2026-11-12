@@ -20,7 +20,7 @@ public class JpaPaymentOrderStore implements PaymentOrderStore {
     @Override
     public PaymentOrder save(PaymentOrder order) {
         return toDomain(repository.save(new PaymentOrderJpaEntity(
-                order.paymentOrderId(), order.buyerAccount(), order.amount(),
+                order.paymentOrderId(), order.buyerAccount(), order.sellerAccount(), order.amount(),
                 order.currency().getCurrencyCode(), order.checkoutId(), order.status(),
                 order.ledgerUpdated(), order.walletUpdated()
         )));
@@ -33,7 +33,7 @@ public class JpaPaymentOrderStore implements PaymentOrderStore {
 
     private PaymentOrder toDomain(PaymentOrderJpaEntity entity) {
         return new PaymentOrder(
-                entity.paymentOrderId, entity.buyerAccount, entity.amount,
+                entity.paymentOrderId, entity.buyerAccount, entity.sellerAccount, entity.amount,
                 Currency.getInstance(entity.currency), entity.checkoutId, entity.status,
                 entity.ledgerUpdated, entity.walletUpdated
         );

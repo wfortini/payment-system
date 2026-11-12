@@ -7,6 +7,7 @@ import com.wfortini.paymentservice.domain.model.PaymentOrderStatus;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;
+import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
@@ -27,6 +28,7 @@ class PaymentPersistenceControllerTest {
         var request = new CreatePaymentEventRequest(
                 "buyer-456",
                 "seller-789",
+                "592f47db-027d-4d56-82e3-343ecf9e8bca",
                 "****1111",
                 false,
                 List.of(new CreatePaymentOrderRequest(
@@ -47,6 +49,8 @@ class PaymentPersistenceControllerTest {
         assertThat(capturedOrders.get()).singleElement().satisfies(order -> {
             assertThat(order.paymentOrderId()).isNotNull();
             assertThat(order.checkoutId()).isEqualTo(event.checkoutId());
+            assertThat(order.sellerAccount())
+                    .isEqualTo(UUID.fromString("592f47db-027d-4d56-82e3-343ecf9e8bca"));
         });
     }
 }

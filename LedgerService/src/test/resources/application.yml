@@ -1,0 +1,28 @@
+spring:
+  datasource:
+    url: jdbc:h2:mem:ledger_service;MODE=PostgreSQL;DB_CLOSE_DELAY=-1
+    username: sa
+    password: ""
+    driver-class-name: org.h2.Driver
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    open-in-view: false
+  flyway:
+    enabled: true
+  kafka:
+    bootstrap-servers: localhost:9092
+    consumer:
+      group-id: ledger-service-test
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.springframework.kafka.support.serializer.JacksonJsonDeserializer
+      properties:
+        spring.json.value.default.type: com.wfortini.ledgerservice.infrastructure.adapter.in.kafka.PaymentProcessedEvent
+        spring.json.trusted.packages: com.wfortini.ledgerservice.infrastructure.adapter.in.kafka
+        spring.json.use.type.headers: false
+    listener:
+      auto-startup: false
+
+ledger:
+  kafka:
+    payment-processed-topic: payment_processed

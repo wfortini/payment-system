@@ -1,0 +1,6 @@
+ALTER TABLE payment_order
+    ADD COLUMN seller_account VARCHAR(255)
+        DEFAULT '00000000-0000-0000-0000-000000000000' NOT NULL;
+
+ALTER TABLE payment_order
+    ALTER COLUMN seller_account DROP DEFAULT;

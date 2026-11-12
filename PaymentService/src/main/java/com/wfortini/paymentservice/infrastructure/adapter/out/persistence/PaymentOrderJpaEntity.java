@@ -24,6 +24,10 @@ class PaymentOrderJpaEntity {
     @Column(name = "buyer_account", nullable = false)
     String buyerAccount;
 
+    @JdbcTypeCode(SqlTypes.VARCHAR)
+    @Column(name = "seller_account", nullable = false)
+    UUID sellerAccount;
+
     @Column(name = "amount", nullable = false)
     String amount;
 
@@ -50,6 +54,7 @@ class PaymentOrderJpaEntity {
     PaymentOrderJpaEntity(
             UUID paymentOrderId,
             String buyerAccount,
+            UUID sellerAccount,
             String amount,
             String currency,
             UUID checkoutId,
@@ -59,6 +64,7 @@ class PaymentOrderJpaEntity {
     ) {
         this.paymentOrderId = paymentOrderId;
         this.buyerAccount = buyerAccount;
+        this.sellerAccount = sellerAccount;
         this.amount = amount;
         this.currency = currency;
         this.checkoutId = checkoutId;

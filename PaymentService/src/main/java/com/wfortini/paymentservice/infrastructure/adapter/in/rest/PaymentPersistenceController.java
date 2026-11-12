@@ -53,8 +53,9 @@ public class PaymentPersistenceController {
                 checkoutId, request.buyerInfo(), request.sellerInfo(),
                 request.creditCardInfo(), request.paymentDone()
         );
+        var sellerAccount = UUID.fromString(request.sellerAccount());
         var orders = request.paymentOrders().stream()
-                .map(requestOrder -> toPaymentOrder(requestOrder, checkoutId))
+                .map(requestOrder -> toPaymentOrder(requestOrder, checkoutId, sellerAccount))
                 .toList();
         var savedEvent = paymentEvents.create(event, orders);
         return ResponseEntity.created(URI.create("/api/v1/payment-events/" + savedEvent.checkoutId())).body(savedEvent);
@@ -76,9 +77,13 @@ public class PaymentPersistenceController {
                 .orElseThrow(() -> new ResourceNotFoundException("Payment event not found: " + checkoutId));
     }
 
-    private PaymentOrder toPaymentOrder(CreatePaymentOrderRequest request, UUID checkoutId) {
+    private PaymentOrder toPaymentOrder(
+            CreatePaymentOrderRequest request,
+            UUID checkoutId,
+            UUID sellerAccount
+    ) {
         return new PaymentOrder(
-                UUID.randomUUID(), request.buyerAccount(), request.amount(),
+                UUID.randomUUID(), request.buyerAccount(), sellerAccount, request.amount(),
                 Currency.getInstance(request.currency().toUpperCase()), checkoutId,
                 request.paymentOrderStatus(), request.ledgerUpdated(), request.walletUpdated()
         );

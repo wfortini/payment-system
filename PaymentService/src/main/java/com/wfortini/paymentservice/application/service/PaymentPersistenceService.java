@@ -2,10 +2,12 @@ package com.wfortini.paymentservice.application.service;
 
 import com.wfortini.paymentservice.application.port.in.PaymentEventUseCases;
 import com.wfortini.paymentservice.application.port.in.PaymentOrderUseCases;
+import com.wfortini.paymentservice.application.port.in.UpdatePaymentOrderStatusUseCase;
 import com.wfortini.paymentservice.application.port.out.PaymentEventStore;
 import com.wfortini.paymentservice.application.port.out.PaymentOrderStore;
 import com.wfortini.paymentservice.domain.model.PaymentEvent;
 import com.wfortini.paymentservice.domain.model.PaymentOrder;
+import com.wfortini.paymentservice.domain.model.PaymentOrderStatus;
 
 import java.util.HashSet;
 import java.util.List;
@@ -13,7 +15,8 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
 
-public final class PaymentPersistenceService implements PaymentEventUseCases, PaymentOrderUseCases {
+public final class PaymentPersistenceService implements PaymentEventUseCases, PaymentOrderUseCases,
+        UpdatePaymentOrderStatusUseCase {
 
     private final PaymentEventStore paymentEventStore;
     private final PaymentOrderStore paymentOrderStore;
@@ -77,5 +80,14 @@ public final class PaymentPersistenceService implements PaymentEventUseCases, Pa
     @Override
     public Optional<PaymentOrder> findByPaymentOrderId(UUID paymentOrderId) {
         return paymentOrderStore.findByPaymentOrderId(paymentOrderId);
+    }
+
+    @Override
+    public Optional<PaymentOrder> updateStatus(UUID paymentOrderId, PaymentOrderStatus status) {
+        Objects.requireNonNull(paymentOrderId, "paymentOrderId must not be null");
+        Objects.requireNonNull(status, "status must not be null");
+
+        return paymentOrderStore.findByPaymentOrderId(paymentOrderId)
+                .map(paymentOrder -> paymentOrderStore.save(paymentOrder.withStatus(status)));
     }
 }

@@ -9,8 +9,6 @@ import java.util.UUID;
 
 public interface LedgerEntryRepository {
 
-    LedgerEntry save(LedgerEntry entry);
-
     Optional<LedgerEntry> findById(UUID id);
 
     List<LedgerEntry> findByAccountIdAndCurrency(UUID accountId, Currency currency);

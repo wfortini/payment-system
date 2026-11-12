@@ -93,6 +93,7 @@ Os UUIDs do evento e das ordens são gerados pelo serviço. Exemplo de criação
 {
   "buyerInfo": "buyer-456",
   "sellerInfo": "seller-789",
+  "seller_account": "592f47db-027d-4d56-82e3-343ecf9e8bca",
   "creditCardInfo": "****1111",
   "paymentDone": false,
   "paymentOrders": [
@@ -120,6 +121,18 @@ Pela interface Swagger é possível consultar os contratos e executar requisiç�
 ## Eventos Kafka
 
 Ao criar um evento com suas ordens por `POST /api/v1/payment-events`, o PaymentService persiste todo o agregado na mesma transação e publica uma mensagem no tópico `payment-events`. O `checkout_id` é usado como chave Kafka.
+
+O serviço também consome o tópico `payment-orders-event`. Ao receber uma mensagem, localiza a ordem pelo `payment_order_id` e atualiza seu status na mesma transação do processamento do evento.
+
+Payload consumido:
+
+```json
+{
+  "payment_order_id": "181e536d-a140-46f8-a469-d8d9459d1b90",
+  "status": "SUCCESS",
+  "message": null
+}
+```
 
 Payload publicado:
 
@@ -149,5 +162,7 @@ As configurações do producer estão no `application.properties` e podem ser so
 
 - `SPRING_KAFKA_BOOTSTRAP_SERVERS` — padrão `localhost:49092`
 - `PAYMENT_EVENT_TOPIC` — padrão `payment-events`
+- `PAYMENT_ORDER_EVENT_TOPIC` — padrão `payment-orders-event`
+- `PAYMENT_SERVICE_CONSUMER_GROUP` — padrão `payment-service`
 
 O producer utiliza confirmação `acks=all`, idempotência e serialização JSON.

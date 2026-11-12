@@ -8,7 +8,7 @@ Sistema de pagamentos formado por serviços Spring Boot 4, Java 21, Kafka, Postg
 | --- | --- | --- |
 | `PaymentService` | Receber e persistir eventos e ordens de pagamento e publicar no Kafka | PostgreSQL e Kafka |
 | `PaymentExecutor` | Consumir `payment-events`, executar ordens no PSP e publicar mudanças de status | Kafka, MongoDB e PSPEmulator |
-| `LedgerService` | Operações de ledger | — |
+| `LedgerService` | Consumir `payment_processed` e registrar débitos/créditos balanceados | PostgreSQL e Kafka |
 | `PSPEmulator` | Emular o processamento de pagamentos e notificar o resultado após o commit | H2 e serviço HTTP de notificações |
 | `kafka-server` | Cluster Kafka local com três brokers KRaft | Docker |
 
@@ -232,6 +232,7 @@ docker compose up -d
 | PSPEmulator | `http://localhost:8082/api/v1/payments` |
 | PaymentExecutor callback | `http://localhost:8083/v1/notifications/transfer` |
 | PostgreSQL | `localhost:5432` |
+| Ledger PostgreSQL | `localhost:5433` |
 | MongoDB | `localhost:27017` |
 | Kafka broker 1 | `localhost:29092` |
 | Kafka broker 2 | `localhost:39092` |

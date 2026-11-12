@@ -7,6 +7,7 @@ import java.util.UUID;
 public record PaymentOrder(
         UUID paymentOrderId,
         String buyerAccount,
+        UUID sellerAccount,
         String amount,
         Currency currency,
         UUID checkoutId,
@@ -17,10 +18,25 @@ public record PaymentOrder(
     public PaymentOrder {
         Objects.requireNonNull(paymentOrderId, "paymentOrderId must not be null");
         requireText(buyerAccount, "buyerAccount");
+        Objects.requireNonNull(sellerAccount, "sellerAccount must not be null");
         requireText(amount, "amount");
         Objects.requireNonNull(currency, "currency must not be null");
         Objects.requireNonNull(checkoutId, "checkoutId must not be null");
         Objects.requireNonNull(status, "status must not be null");
+    }
+
+    public PaymentOrder withStatus(PaymentOrderStatus newStatus) {
+        return new PaymentOrder(
+                paymentOrderId,
+                buyerAccount,
+                sellerAccount,
+                amount,
+                currency,
+                checkoutId,
+                newStatus,
+                ledgerUpdated,
+                walletUpdated
+        );
     }
 
     private static void requireText(String value, String field) {

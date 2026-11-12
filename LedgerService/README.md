@@ -1,81 +1,87 @@
 # LedgerService
 
-API de lançamentos contábeis construída com Java 21, Spring Boot 4 e Maven, organizada com Clean Architecture.
+Ledger contábil construído com Java 21, Spring Boot 4, Kafka, PostgreSQL, JPA e Flyway, organizado com Clean Architecture.
 
-## Arquitetura
+## Double-entry
+
+O serviço consome eventos do tópico `payment_processed`. Para cada pagamento com status `SUCCESS`, persiste atomicamente:
+
+- uma `ledger_transaction` com status `POSTED`;
+- um lançamento `DEBIT` na conta do comprador;
+- um lançamento `CREDIT` na conta do vendedor.
+
+Os débitos e créditos precisam usar a mesma moeda e ter totais iguais. O domínio rejeita uma transação `POSTED` desbalanceada antes da persistência.
+
+Eventos diferentes de `SUCCESS` geram uma transação `FAILED`, sem movimentação financeira. O `external_id` é salvo como `external_reference` e possui restrição `UNIQUE`, garantindo idempotência contra reprocessamentos.
+
+## Evento consumido
+
+Tópico padrão: `payment_processed`.
+
+```json
+{
+  "payment_order_id": "781e536d-a140-46f8-a469-d8d9459d1b90",
+  "status": "SUCCESS",
+  "seller_account": "592f47db-027d-4d56-82e3-343ecf9e8bca",
+  "buyer_account": "a7f036ab-247f-4c10-984d-45f4e589142e",
+  "amount": 10.00,
+  "description": "payment sent with success",
+  "transaction_type": "PAYMENT",
+  "currency": "BRL",
+  "external_id": "381e536d-a140-46f8-a469-d8d9459d1b90"
+}
+```
+
+Para `PAYMENT`, `FEE` e `ADJUSTMENT`, o comprador é debitado e o vendedor creditado. Para `REFUND` e `REVERSAL`, o sentido é invertido.
+
+## Persistência
+
+A migration `V1__create_ledger_tables.sql` cria:
+
+- `ledger_transaction`: cabeçalho, referência externa, tipo, status e datas;
+- `ledger_entry`: lançamentos imutáveis de débito e crédito relacionados à transação;
+- índices para consultas por conta, transação e ordem de pagamento.
+
+Configuração local padrão:
 
 ```text
-domain                     Modelos e regras contábeis sem dependência de framework
-application/port/in        Casos de uso disponibilizados pela aplicação
-application/port/out       Contratos exigidos pela aplicação
-application/service        Implementação dos casos de uso
-infrastructure/adapter/in  Adaptador HTTP/REST
-infrastructure/adapter/out Persistência em memória
-infrastructure/config      Composição das dependências com Spring
+URL:     jdbc:postgresql://localhost:5433/ledger_service
+Usuário: ledger
+Senha:   ledger
 ```
 
-## Executar
+## Configurações
 
-Pré-requisitos: Java 21 e Maven 3.6.3 ou superior.
+- `SPRING_DATASOURCE_URL`
+- `SPRING_DATASOURCE_USERNAME`
+- `SPRING_DATASOURCE_PASSWORD`
+- `SPRING_KAFKA_BOOTSTRAP_SERVERS`
+- `LEDGER_CONSUMER_GROUP` — padrão `ledger-service`
+- `PAYMENT_PROCESSED_TOPIC` — padrão `payment_processed`
 
-```bash
-mvn spring-boot:run
-```
+## APIs de consulta
 
-Criar um crédito:
+- `GET /api/v1/ledger/entries/{entryId}`
+- `GET /api/v1/ledger/accounts/{accountId}/balance?currency=BRL`
 
-```bash
-curl -i -X POST http://localhost:8080/api/v1/ledger/entries \
-  -H 'Content-Type: application/json' \
-  -d '{
-    "accountId":"d9d1ac44-c1dd-4eb9-a784-cbced8d30190",
-    "type":"CREDIT",
-    "amount":100.00,
-    "currency":"BRL",
-    "description":"Initial deposit"
-  }'
-```
+O saldo é derivado dos lançamentos: créditos são positivos e débitos negativos.
 
-Consultar um lançamento:
+Swagger UI:
 
-```bash
-curl http://localhost:8080/api/v1/ledger/entries/{entryId}
-```
+- execução local: `http://localhost:8080/swagger-ui.html`
+- Docker Compose: `http://localhost:8081/swagger-ui.html`
 
-Consultar o saldo:
-
-```bash
-curl 'http://localhost:8080/api/v1/ledger/accounts/d9d1ac44-c1dd-4eb9-a784-cbced8d30190/balance?currency=BRL'
-```
-
-## Testes e build
+## Testes e imagem Docker
 
 ```bash
 mvn clean verify
-```
-
-## Imagem Docker pelo Maven
-
-O Jib Maven Plugin gera a imagem diretamente no Docker local, sem `Dockerfile`:
-
-```bash
 mvn compile jib:dockerBuild
 ```
 
-A imagem gerada será `ledger-service:0.0.1-SNAPSHOT`:
+A imagem gerada é `ledger-service:0.0.1-SNAPSHOT`.
+
+Para subir PostgreSQL, LedgerService e os demais componentes:
 
 ```bash
-docker run --rm -p 8080:8080 ledger-service:0.0.1-SNAPSHOT
+docker compose up -d
 ```
-
-## Swagger UI e OpenAPI
-
-Ao executar o projeto diretamente, a documentação fica disponível em:
-
-- Swagger UI: `http://localhost:8080/swagger-ui.html`
-- Especificação OpenAPI (JSON): `http://localhost:8080/v3/api-docs`
-
-Ao subir a stack pelo Docker Compose, use a porta externa `8081`:
-
-- Swagger UI: `http://localhost:8081/swagger-ui.html`
-- Especificação OpenAPI (JSON): `http://localhost:8081/v3/api-docs`

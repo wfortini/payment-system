@@ -17,6 +17,24 @@ services:
       retries: 10
     restart: unless-stopped
 
+  ledger-postgres:
+    image: postgres:17-alpine
+    container_name: ledger-postgres
+    environment:
+      POSTGRES_DB: ledger_service
+      POSTGRES_USER: ledger
+      POSTGRES_PASSWORD: ledger
+    ports:
+      - "5433:5432"
+    volumes:
+      - ledger-postgres-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ledger -d ledger_service"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    restart: unless-stopped
+
   payment-service:
     image: payment-service:0.0.1-SNAPSHOT
     container_name: payment-service
@@ -25,6 +43,8 @@ services:
       SPRING_DATASOURCE_USERNAME: payment
       SPRING_DATASOURCE_PASSWORD: payment
       SPRING_KAFKA_BOOTSTRAP_SERVERS: kafka-1:19092,kafka-2:19092,kafka-3:19092
+      PAYMENT_SERVICE_CONSUMER_GROUP: payment-service
+      PAYMENT_ORDER_EVENT_TOPIC: payment-orders-event
       SERVER_PORT: 8080
     ports:
       - "8080:8080"
@@ -40,9 +60,21 @@ services:
     image: ledger-service:0.0.1-SNAPSHOT
     container_name: ledger-service
     environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://ledger-postgres:5432/ledger_service
+      SPRING_DATASOURCE_USERNAME: ledger
+      SPRING_DATASOURCE_PASSWORD: ledger
+      SPRING_KAFKA_BOOTSTRAP_SERVERS: kafka-1:19092,kafka-2:19092,kafka-3:19092
+      LEDGER_CONSUMER_GROUP: ledger-service
+      PAYMENT_PROCESSED_TOPIC: payment_processed
       SERVER_PORT: 8080
     ports:
       - "8081:8080"
+    depends_on:
+      ledger-postgres:
+        condition: service_healthy
+    networks:
+      - default
+      - payment-kafka-network
     restart: unless-stopped
 
   psp-emulator:
@@ -145,6 +177,7 @@ services:
 
 volumes:
   payment-postgres-data:
+  ledger-postgres-data:
   payment-executor-mongo-data:
   psp-emulator-data:
 

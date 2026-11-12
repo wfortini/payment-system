@@ -27,6 +27,7 @@ class PaymentEventMessageTest {
         var paymentOrder = new PaymentOrder(
                 UUID.fromString("181e536d-a140-46f8-a469-d8d9459d1b90"),
                 "account-456",
+                UUID.fromString("592f47db-027d-4d56-82e3-343ecf9e8bca"),
                 "125.90",
                 Currency.getInstance("BRL"),
                 paymentEvent.checkoutId(),

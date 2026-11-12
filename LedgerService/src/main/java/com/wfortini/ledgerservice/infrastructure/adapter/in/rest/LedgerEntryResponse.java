@@ -9,21 +9,21 @@ import java.util.UUID;
 
 public record LedgerEntryResponse(
         UUID id,
+        UUID transactionId,
         UUID accountId,
         EntryType type,
         BigDecimal amount,
         String currency,
-        String description,
         Instant occurredAt
 ) {
     static LedgerEntryResponse from(LedgerEntry entry) {
         return new LedgerEntryResponse(
                 entry.id(),
+                entry.transactionId(),
                 entry.accountId(),
                 entry.type(),
                 entry.amount(),
                 entry.currency().getCurrencyCode(),
-                entry.description(),
                 entry.occurredAt()
         );
     }
