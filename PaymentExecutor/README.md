@@ -37,6 +37,7 @@ Evento publicado após o callback:
 ```json
 {
   "payment_order_id": "181e536d-a140-46f8-a469-d8d9459d1b90",
+  "external_id": "381e536d-a140-46f8-a469-d8d9459d1b90",
   "status": "SUCCESS",
   "message": null
 }

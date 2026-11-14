@@ -32,7 +32,7 @@ class PaymentPersistenceControllerTest {
                 "****1111",
                 false,
                 List.of(new CreatePaymentOrderRequest(
-                        "account-456",
+                        "a7f036ab-247f-4c10-984d-45f4e589142e",
                         "125.90",
                         "BRL",
                         PaymentOrderStatus.NOT_STARTED,

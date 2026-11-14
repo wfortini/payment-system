@@ -75,6 +75,7 @@ class PaymentExecutionServiceTest {
                 .isEqualTo(PaymentOrderStatus.SUCCESS);
         assertThat(events).singleElement().satisfies(event -> {
             assertThat(event.paymentOrderId()).isEqualTo(original.paymentOrders().getFirst().paymentOrderId());
+            assertThat(event.externalId()).isEqualTo(externalId);
             assertThat(event.status()).isEqualTo(PaymentOrderStatus.SUCCESS);
             assertThat(event.message()).isNull();
         });

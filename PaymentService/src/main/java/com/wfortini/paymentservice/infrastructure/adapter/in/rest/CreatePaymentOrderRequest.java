@@ -9,8 +9,16 @@ import io.swagger.v3.oas.annotations.media.Schema;
 
 @Schema(description = "Ordem de pagamento persistida junto com o evento")
 public record CreatePaymentOrderRequest(
-        @Schema(description = "Conta do comprador", example = "account-456")
-        @NotBlank @Size(max = 255) String buyerAccount,
+        @Schema(
+                description = "Identificador UUID da conta do comprador",
+                example = "a7f036ab-247f-4c10-984d-45f4e589142e"
+        )
+        @NotBlank
+        @Pattern(
+                regexp = "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-5][0-9a-fA-F]{3}-[89aAbB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}$",
+                message = "buyerAccount must be a valid UUID"
+        )
+        String buyerAccount,
         @Schema(description = "Valor conforme recebido pelo domínio", example = "125.90")
         @NotBlank @Size(max = 255) String amount,
         @Schema(description = "Código ISO 4217 da moeda", example = "BRL")

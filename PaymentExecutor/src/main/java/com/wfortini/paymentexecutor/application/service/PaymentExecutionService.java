@@ -53,7 +53,8 @@ public final class PaymentExecutionService implements ProcessPaymentEventUseCase
             PaymentOrderExecution updatedOrder = order.withStatus(status);
             repository.save(execution.replaceOrder(updatedOrder));
             eventPublisher.publish(new ChangedPaymentOrderEvent(
-                    updatedOrder.paymentOrderId(), updatedOrder.status(), updatedOrder.errorMessage()
+                    updatedOrder.paymentOrderId(), updatedOrder.externalId(),
+                    updatedOrder.status(), updatedOrder.errorMessage()
             ));
             return updatedOrder;
         });

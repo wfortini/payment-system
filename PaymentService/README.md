@@ -98,7 +98,7 @@ Os UUIDs do evento e das ordens são gerados pelo serviço. Exemplo de criação
   "paymentDone": false,
   "paymentOrders": [
     {
-      "buyerAccount": "account-456",
+      "buyerAccount": "a7f036ab-247f-4c10-984d-45f4e589142e",
       "amount": "125.90",
       "currency": "BRL",
       "paymentOrderStatus": "NOT_STARTED",
@@ -122,13 +122,30 @@ Pela interface Swagger é possível consultar os contratos e executar requisiç�
 
 Ao criar um evento com suas ordens por `POST /api/v1/payment-events`, o PaymentService persiste todo o agregado na mesma transação e publica uma mensagem no tópico `payment-events`. O `checkout_id` é usado como chave Kafka.
 
-O serviço também consome o tópico `payment-orders-event`. Ao receber uma mensagem, localiza a ordem pelo `payment_order_id` e atualiza seu status na mesma transação do processamento do evento.
+O serviço também consome o tópico `payment-orders-event`. Ao receber uma mensagem, localiza a ordem pelo `payment_order_id` e atualiza seu status na mesma transação do processamento do evento. O campo `external_id` faz parte do contrato consumido, mas não é persistido pelo PaymentService.
+
+Quando a ordem localizada recebe o status `SUCCESS`, o PaymentService publica no tópico `payment_processed` um evento compatível com o contrato do LedgerService. Os dados financeiros são obtidos da ordem persistida; o `external_id` é apenas repassado para o Ledger e não é armazenado no PaymentService.
+
+```json
+{
+  "payment_order_id": "781e536d-a140-46f8-a469-d8d9459d1b90",
+  "status": "SUCCESS",
+  "seller_account": "592f47db-027d-4d56-82e3-343ecf9e8bca",
+  "buyer_account": "a7f036ab-247f-4c10-984d-45f4e589142e",
+  "amount": 10.00,
+  "description": "payment sent with success",
+  "transaction_type": "PAYMENT",
+  "currency": "BRL",
+  "external_id": "381e536d-a140-46f8-a469-d8d9459d1b90"
+}
+```
 
 Payload consumido:
 
 ```json
 {
   "payment_order_id": "181e536d-a140-46f8-a469-d8d9459d1b90",
+  "external_id": "381e536d-a140-46f8-a469-d8d9459d1b90",
   "status": "SUCCESS",
   "message": null
 }
@@ -146,7 +163,7 @@ Payload publicado:
   "payment_orders": [
     {
       "payment_order_id": "181e536d-a140-46f8-a469-d8d9459d1b90",
-      "buyer_account": "account-456",
+      "buyer_account": "a7f036ab-247f-4c10-984d-45f4e589142e",
       "amount": "125.90",
       "currency": "BRL",
       "checkout_id": "b3b58ca2-326d-4f0a-bb0f-0af6bcfb7301",
@@ -164,5 +181,6 @@ As configurações do producer estão no `application.properties` e podem ser so
 - `PAYMENT_EVENT_TOPIC` — padrão `payment-events`
 - `PAYMENT_ORDER_EVENT_TOPIC` — padrão `payment-orders-event`
 - `PAYMENT_SERVICE_CONSUMER_GROUP` — padrão `payment-service`
+- `PAYMENT_PROCESSED_TOPIC` — padrão `payment_processed`
 
 O producer utiliza confirmação `acks=all`, idempotência e serialização JSON.
