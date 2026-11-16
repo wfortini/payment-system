@@ -41,3 +41,16 @@ springdoc:
 ledger:
   kafka:
     payment-processed-topic: ${PAYMENT_PROCESSED_TOPIC:payment_processed}
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics,prometheus
+  metrics:
+    distribution:
+      percentiles-histogram:
+        http.server.requests: true
+  observations:
+    key-values:
+      application: ledger-service

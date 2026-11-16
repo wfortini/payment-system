@@ -39,7 +39,7 @@ class LedgerTransactionJpaEntity {
     @Column(name = "status", nullable = false, length = 20)
     LedgerTransactionStatus status;
 
-    @Column(name = "currency", nullable = false, length = 3, columnDefinition = "CHAR(3)")
+    @Column(name = "currency", nullable = false, length = 3)
     String currency;
 
     @Column(name = "description", length = 255)
